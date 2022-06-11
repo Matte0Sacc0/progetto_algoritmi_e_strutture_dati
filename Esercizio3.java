@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 
+// Classe che definisce il punto cartesiano con le coordinate
 class Point {
    private float x;
    private float y;
@@ -32,6 +33,13 @@ class Point {
    }
 }
 
+// Classe che definisce ogni Nodo
+/**
+ * @head -> punto dal quale arriva l'arco entrante del MST
+ * @tail -> indice dell'arco verso il quale punta il nodo nel MST
+ * @minimumDistance -> attuale distanza minima verso l'attuale nodo tail
+ * @connectionCost -> array delle distanze per collegarsi ad ogni nodo
+ */
 class Node {
    private Point head;
    private int tail;
@@ -78,9 +86,8 @@ class Node {
       String str = this.head.toString() + " {";
       for (int i = 0; i < connectionCost.length; i++) {
          str += connectionCost[i];
-         if (i != connectionCost.length - 1) {
+         if (i != connectionCost.length - 1)
             str += ", ";
-         }
       }
       str += "} " + this.tail;
       return str;
@@ -99,9 +106,8 @@ class GraphMST {
 
    private Node[] initializeGraph(int size) {
       Node[] tmpGraph = new Node[size];
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < size; i++)
          tmpGraph[i] = new Node(size);
-      }
       return tmpGraph;
    }
 
@@ -168,9 +174,9 @@ class GraphMST {
 
    public void printGraph() {
       System.out.println();
-      for (int i = 0; i < graph.length; i++) {
+      for (int i = 0; i < graph.length; i++)
          System.out.println(graph[i].toString());
-      }
+
       System.out.println();
    }
 }
