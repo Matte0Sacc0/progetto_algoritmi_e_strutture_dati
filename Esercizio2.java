@@ -13,9 +13,8 @@
      * ad ogni Entry è stato associato un puntatore ad un'altra Entry. In questo modo è possibile legare due Entry in caso di collisione.
   
    ? 2. Il numero di accessi per b) sia pari a 1
-     * Per rispettare questo punto non è stata utilizzata la chiave della Entry, successivamente trasmutata
-     * in un intero con una funzione di hashing, bensì è stato direttamente utilizzato il valore di hs.
-     * A questo punto basterà accedere all'indice corrispondente al valore cercato e contare il numero di Entry.
+     * Per rispettare questo punto non è stata utilizzata la chiave della Entry come chiave per la funzione di Hashing,
+     * bensì il valore hs, in questo modo sarà possibile trovare un indice direttamente cercando il valore hs dato. 
  */
 
 import java.io.File;
@@ -101,12 +100,26 @@ class HashTable {
       return num;
    }
 
+   // Funzione di ridimensionamento della HashTable
    private void resizeHashTable(String direction) {
+      /*
+       * a second se viene chiesto di espandere o ridurre la dimensione,
+       * la nuova dimensione assume valore:
+       * expand -> numero primo successivo al doppio della dim. attuale
+       * shrink -> numero primo successivo alla metà della dim. attuale
+       */
       int newSize = (direction.equals("expand")) ? getNextPrimeNumber(this.table.length * 2)
             : (direction.equals("shrink")) ? getNextPrimeNumber(this.table.length / 2) : this.table.length;
+
       Entry[] newTable = initHashTable(newSize);
       int i = 0;
       Entry tableValue = this.table[i];
+
+      /*
+       * per ogni elemento della HashTable viene rieffettuato l'Hashing sulla nuova
+       * dimensione
+       * e poi viene inserito nella nuova tabella che sostituirà la attuale
+       */
       while (tableValue != null && i < this.table.length) {
          if (tableValue.getKey() != null) {
             int index = hashIndex(tableValue.getHs(), newSize);
@@ -116,26 +129,51 @@ class HashTable {
             tmpEntry.next = newTableValue.next;
             newTableValue.next = tmpEntry;
          }
-         if (tableValue.next != null) {
+         if (tableValue.next != null)
             tableValue = tableValue.next;
-         } else {
+         else {
             i++;
-            if (i < this.table.length) {
+            if (i < this.table.length)
                tableValue = this.table[i];
-            }
          }
       }
       this.table = newTable;
    }
 
+   /*
+    * Nell'inserimento viene verificato che l'elemento non sia già presente,
+    * garantendo l'univocità della Chiave (key)
+    */
+   public boolean isDuplicatedEntry(String key, int hs) {
+      int index = hashIndex(hs, this.table.length);
+      Entry tableValue = table[index];
+      while (tableValue != null) {
+         if (tableValue.getKey() != null && tableValue.getKey().equals(key)) {
+            System.out.println("duplicated");
+            return true;
+         }
+         tableValue = tableValue.next;
+      }
+      return false;
+   }
+
+   // Aggiunta di un elemento alla HashTable
+   /*
+    * Viene calcolato il fattore di riempimento della tabella in percentuale e,
+    * se raggiunge il 75% viene aumentta la dimensione della tabella,
+    * mentre se è inferiore al 40% viene ridotta
+    *
+    * Viene poi effettuato l'Hashing dell'indice nel quale andrà inserito il nuovo
+    * elemento e, verrà inserito l'elemento.
+    */
    public void add(String key, char info, int hs) {
       entryCount++;
       int loadFactor = entryCount / this.table.length;
-      if (loadFactor >= 0.75) {
+      if (loadFactor >= 0.75)
          resizeHashTable("expand");
-      } else if (loadFactor < 0.4) {
+      else if (loadFactor < 0.4)
          resizeHashTable("shrink");
-      }
+
       int index = hashIndex(hs, this.table.length);
       Entry tableValue = table[index];
       Entry newEntry = new Entry(key, info, hs);
@@ -143,6 +181,13 @@ class HashTable {
       tableValue.next = newEntry;
    }
 
+   /*
+    * Ricerca di un elemento, trovato l'indice della tabella nel quale si trova
+    * l'elemento,
+    * vengono scorsi tutti gli elementi presenti (in caso di collisioni) fino a
+    * trovare quello cercato.
+    * Se non viene trovato, la funzione scrive "elemento non presente"
+    */
    public void findValue(Entry entry) {
       String foundItem = "elemento non presente";
       int index = hashIndex(entry.getHs(), this.table.length);
@@ -157,19 +202,9 @@ class HashTable {
       System.out.println("input: " + entry.toString() + " output: " + foundItem);
    }
 
-   public boolean isDuplicatedEntry(String key, int hs) {
-      int index = hashIndex(hs, this.table.length);
-      Entry tableValue = table[index];
-      while (tableValue != null) {
-         if (tableValue.getKey() != null && tableValue.getKey().equals(key)) {
-            System.out.println("duplicated");
-            return true;
-         }
-         tableValue = tableValue.next;
-      }
-      return false;
-   }
-
+   /*
+    * Dato un hs vengono contate le sue occorrenze tra gli elementi della tabella
+    */
    public void countHs(int hs) {
       int count = 0;
       Entry tableValue = this.table[hashIndex(hs, this.table.length)];
@@ -182,6 +217,9 @@ class HashTable {
       System.out.println("input: " + hs + ", output: " + count);
    }
 
+   /*
+    * Dato un hs vengono mostrati tutti gli elementi aventi hs uguale a quello dato
+    */
    public void searchByHs(int hs) {
       ArrayList<Entry> foundItems = new ArrayList<>();
       Entry tableValue = this.table[hashIndex(hs, this.table.length)];
@@ -232,9 +270,10 @@ public class Esercizio2 {
 
       HashTable d = new HashTable();
 
-      /**
+      /*
        * Riempimento del dizionario D con i valori Entry <Chiave, info, hs> letti dal
-       * file
+       * file, viene prima controllato che le entry non siano già presenti prendendo
+       * la Chiave come parametro univoco.
        */
       for (int i = 1; i <= n; i++) {
          String line = fileContent.split("\n")[i];
