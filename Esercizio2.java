@@ -2,6 +2,20 @@
 /**
  * Matteo Sacco
  * mat. 873823
+ * matteo.sacco4@studio.unibo.it
+ */
+
+/*
+ ! Nell'esercizio 2 è richiesto di rispettare le seguenti specifiche:
+   ? 1. Numero medio di accessi per a) sia (1 + N/K);
+     * La struttura scelta ed implementata è una HashTable, per salvare i dati di tipo Entry(String key, char info, int hs),
+     * è stato scelto un vettore di Entry. Perchè fosse possiblie inserire più elementi sotto lo stesso indice in caso di collisioni,
+     * ad ogni Entry è stato associato un puntatore ad un'altra Entry. In questo modo è possibile legare due Entry in caso di collisione.
+  
+   ? 2. Il numero di accessi per b) sia pari a 1
+     * Per rispettare questo punto non è stata utilizzata la chiave della Entry, successivamente trasmutata
+     * in un intero con una funzione di hashing, bensì è stato direttamente utilizzato il valore di hs.
+     * A questo punto basterà accedere all'indice corrispondente al valore cercato e contare il numero di Entry.
  */
 
 import java.io.File;
@@ -45,6 +59,14 @@ class Entry {
 }
 
 class HashTable {
+   private Entry[] table;
+   private int entryCount = 0;
+
+   public HashTable() {
+      this.table = initHashTable(3);
+   }
+
+   // Funzione di inizializzazione della HashTable
    private Entry[] initHashTable(int size) {
       Entry[] table = new Entry[size];
       for (int i = 0; i < size; i++) {
@@ -53,6 +75,7 @@ class HashTable {
       return table;
    }
 
+   // Funzione di Hashing
    private int hashStringToInt(String str, int tableLength) {
       int hash = 0;
       int p = 13;
@@ -64,6 +87,8 @@ class HashTable {
       return hash;
    }
 
+   // Funzione per prendere il numero primo successivo, utile nel ridimensionamento
+   // della tabella
    private static int getNextPrimeNumber(int num) {
       num++;
       for (int i = 2; i < num; i++) {
@@ -76,24 +101,6 @@ class HashTable {
       }
       return num;
    }
-
-   // private void printHashTable(Entry[] table) {
-   // int i = 0;
-   // Entry tableValue = table[i];
-   // while (tableValue != null && i < table.length) {
-   // if (tableValue.getKey() != null) {
-   // System.out.println(tableValue.toString() + " : " + i);
-   // }
-   // if (tableValue.next != null) {
-   // tableValue = tableValue.next;
-   // } else {
-   // i++;
-   // if (i < table.length) {
-   // tableValue = table[i];
-   // }
-   // }
-   // }
-   // }
 
    private void resizeHashTable(String direction) {
       int newSize = (direction.equals("expand")) ? getNextPrimeNumber(this.table.length * 2)
@@ -120,13 +127,6 @@ class HashTable {
          }
       }
       this.table = newTable;
-   }
-
-   private Entry[] table;
-   private int entryCount = 0;
-
-   public HashTable() {
-      this.table = initHashTable(3);
    }
 
    public void add(String key, char info, int hs) {

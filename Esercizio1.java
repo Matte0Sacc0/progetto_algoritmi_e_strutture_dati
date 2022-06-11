@@ -2,6 +2,26 @@
 /**
  * Matteo Sacco
  * mat. 873823
+ * matteo.sacco4@studio.unibo.it
+ */
+
+/*
+ ! Nell'esercizio 1 è richiesto di rispettare le seguenti specifiche:
+   ? 1. La struttura S sia ad accesso diretto;
+     * La struttura scelta ed implementata è un MaxHeap, alla base del quale è stato utilizzato un vettore per salvare i dati.
+     * L'accesso alla struttura può essere effettuato direttamente all'indice desiderato:
+     * per semplicità non sono stati implementati metodi non richiesti ai fini dell'esercizio,
+     * non ne esiste quindi uno per accedere ai valori salvati in S
+  
+   ? 2. Il massimo numero di accessi ad S per identificare la coppia avente priorità più alta sia pari ad 1;
+     * Avendo utilizzato un MaxHeap, per accedere all'elemento avente priorità maggiore è sufficiente accedere all'elemento in
+     * cima all'albero, ovvero il primo elemento del vettore alla base dell'Heap.
+     * Dopo l'eliminazione dell'elemento con priorità più alta verrà ripristinata la struttura MaxHeap.
+  
+   ? 3. L’inserimento di una coppia all’interno di S deve prevedere un numero di confronti tra elementi non superiore a 2*[log(K)];
+     * Essendo il MaxHeap ordinato parzialmente, all'inserimento di un elemento il massimo numero di confronti è dato dal numero 
+     * di livelli per arrivare alla cima, arrivato in cima un elemento sarà confrontato con l'attuale massimo e scambiato solo se superiore.
+     * Non essendo previsto un ordinamento totale, un elemento appena inserito, viene confrontato solamente con i padri che trova salendo di livello. * 
  */
 
 import java.util.Random;
@@ -29,10 +49,18 @@ class SensorData {
 class MaxHeap {
    private int capacity = 1;
    private int size = 0;
+   private SensorData[] items;
 
-   SensorData[] items = new SensorData[capacity];
+   public MaxHeap() {
+      items = new SensorData[capacity];
+   }
 
    // Boilerplate Code contenente le funzioni standard di un Heap
+   /**
+    * * getRightChildIndex, getLeftChildIndex, getParentIndex
+    * * hasRightCHild, hasLeftChild, hasParent
+    * * getRightChild, getLeftCHild, getParent
+    */
    private int getLeftChildIndex(int parentIndex) {
       return 2 * parentIndex + 1;
    }
@@ -73,7 +101,8 @@ class MaxHeap {
 
    /**
     * Funzioni utilizzate internamente dall'Heap
-    * per il corretto funzinoamento
+    * * swap -> scambia due elementi
+    * * checkCapacity -> controlla ci sia sufficiente spazio
     */
    private void swap(int indexOne, int indexTwo) {
       SensorData tmp = items[indexOne];
@@ -82,7 +111,7 @@ class MaxHeap {
    }
 
    private void checkCapacity() {
-      if (size == capacity) {
+      if (size == capacity - 1) {
          items = Arrays.copyOf(items, capacity * 2);
          capacity *= 2;
       } else if (size <= 0.4 * capacity) {
@@ -137,6 +166,9 @@ class MaxHeap {
       System.out.println();
    }
 
+   /**
+    * restituisce il primo elemento lasciando invariata la struttura dati
+    */
    public SensorData peek() {
       if (size == 0) {
          throw new IllegalAccessError();
@@ -144,6 +176,10 @@ class MaxHeap {
       return items[0];
    }
 
+   /**
+    * restituisce il primo elemento togliendolo dall'Heap
+    * e ricostruisce la struttura dati -> Max in testa
+    */
    public SensorData poll() {
       if (size == 0) {
          throw new IllegalAccessError();
@@ -166,6 +202,7 @@ class MaxHeap {
 }
 
 public class Esercizio1 {
+   // Inizializza la struttura dati usando la matricola come seme
    static MaxHeap initializeS(int k) {
       MaxHeap s = new MaxHeap();
       int seedMat = 873823;
@@ -180,6 +217,7 @@ public class Esercizio1 {
       return s;
    }
 
+   // Genera un nuovo dato da inserire con il seme 3131123
    static SensorData newSensorData() {
       int seed = 3131123;
       Random randomSeed = new Random(seed);
@@ -195,7 +233,6 @@ public class Esercizio1 {
       s.printHeap();
 
       // Rimozione dell'elemento massimo
-      // stampa dell'Heap con il nuovo Masismo in testa
       s.poll();
       s.printHeap();
 
