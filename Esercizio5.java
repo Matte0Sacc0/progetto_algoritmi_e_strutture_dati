@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
+// Classe che definisce un nodo del grafo
 class Node {
    private int id;
    private LinkedList<Arch> arches;
@@ -53,6 +54,7 @@ class Node {
 
 }
 
+// Classe che definisce un arco tra due nodi
 class Arch {
    private int head;
    private int tail;
@@ -97,6 +99,7 @@ class Arch {
    }
 }
 
+// Classe che definisce un grafo
 class Graph {
    private Node[] graph;
    private int nodes;
@@ -116,6 +119,7 @@ class Graph {
       return this.graph[id];
    }
 
+   // Funzione che restituisce il persorso minimo secondo l'algoritmo di Dijkstra
    public String findDijkstraPath(int source, int tail, char pathType) {
       String str = "non raggiungibile";
       float pathLength[] = new float[this.nodes];
@@ -139,15 +143,31 @@ class Graph {
       while (!s.isEmpty()) {
          Node u = graph[s.poll()];
          visitedNodes[u.getId()] = false;
+
+         /*
+          * per ogni arco del nodo che si sta visitando viene effettuato un controllo sul
+          * tipo di percorso
+          * se è stato specificato solo percorsi a piedi "p" vengono esclusi quelli "t"
+          */
          for (Arch arch : u.getArches()) {
             boolean validPath = pathType == 'm' ? true : pathType == arch.getType();
             float estimatedLength = arch.getLength() + pathLength[u.getId()];
             int v = arch.getTail();
+
+            /*
+             * Se il persorco è valido secondo la richiesta, e la distanza minore della
+             * precedente, viene aggiornato il valore e settato il nodo di partenza
+             * dell'arco come parent del nodo di arrivo
+             */
             if (validPath && estimatedLength < pathLength[v]) {
                pathLength[v] = estimatedLength;
                pathCost[v] = arch.getCost() + pathCost[u.getId()];
                graph[v].setParentLink(arch);
 
+               /*
+                * se il nodo di arrivo v non è stato visitato, viene aggiunto alla coda
+                * per essere visitato successivamente
+                */
                if (!visitedNodes[v]) {
                   s.add(v);
                   visitedNodes[v] = true;
@@ -156,6 +176,12 @@ class Graph {
          }
       }
 
+      /*
+       * A ritroso dal nodo di arrivo viene composto il percorso minimo secondo i nodi
+       * parent impostati precedentemente con le visite degli archi.
+       * Viene assemblata una srtinga che rappresenta il persorso e rimandata come
+       * risultato.
+       */
       Arch tmp = graph[tail].getParentLink();
       if (tmp != null) {
          str = "";
@@ -178,10 +204,9 @@ class Graph {
 
    public void printGraph() {
       System.out.println();
-      for (int i = 0; i < graph.length; i++) {
-         System.out.println(graph[i].toString());
-         System.out.println();
-      }
+      for (int i = 0; i < graph.length; i++)
+         System.out.println(graph[i].toString() + "\n");
+
       System.out.println();
    }
 }
