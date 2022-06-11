@@ -1,0 +1,11 @@
+10 4
+Chiave1 a 1
+Chiave2 b 2
+Chiave3 c 1
+Chiave4 c 0
+Chiave5 a 3
+Chiave6 x 3
+Chiave7 y 2
+Chiave8 a 0
+Chiave9 q 1
+Chiave10 s 1
