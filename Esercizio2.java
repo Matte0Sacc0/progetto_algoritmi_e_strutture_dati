@@ -20,7 +20,7 @@
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.IOException;
 
@@ -76,28 +76,27 @@ class HashTable {
    }
 
    // Funzione di Hashing
-   private int hashStringToInt(String str, int tableLength) {
+   private int hashIndex(int index, int tableLength) {
       int hash = 0;
-      int p = 13;
-      for (int i = 0; i < str.length(); i++) {
-         hash += str.codePointAt(i) * (p ^ i);
+      int p = 31;
+      for (int i = 0; i < index; i++) {
+         hash += index * (p ^ i);
       }
       hash = hash * p;
       hash = Math.abs(hash % tableLength);
       return hash;
    }
 
-   // Funzione per prendere il numero primo successivo, utile nel ridimensionamento
-   // della tabella
+   // Funzione per prendere il numero primo successivo,
+   // utile nel ridimensionamento della tabella
    private static int getNextPrimeNumber(int num) {
       num++;
       for (int i = 2; i < num; i++) {
          if (num % i == 0) {
             num++;
             i = 2;
-         } else {
+         } else
             continue;
-         }
       }
       return num;
    }
@@ -110,7 +109,7 @@ class HashTable {
       Entry tableValue = this.table[i];
       while (tableValue != null && i < this.table.length) {
          if (tableValue.getKey() != null) {
-            int index = hashStringToInt(tableValue.getKey(), newSize);
+            int index = hashIndex(tableValue.getHs(), newSize);
             Entry newTableValue = newTable[index];
             Entry tmpEntry = new Entry(tableValue.getKey(), tableValue.getInfo(),
                   tableValue.getHs());
@@ -137,7 +136,7 @@ class HashTable {
       } else if (loadFactor < 0.4) {
          resizeHashTable("shrink");
       }
-      int index = hashStringToInt(key, this.table.length);
+      int index = hashIndex(hs, this.table.length);
       Entry tableValue = table[index];
       Entry newEntry = new Entry(key, info, hs);
       newEntry.next = tableValue.next;
@@ -146,7 +145,7 @@ class HashTable {
 
    public void findValue(Entry entry) {
       String foundItem = "elemento non presente";
-      int index = hashStringToInt(entry.getKey(), this.table.length);
+      int index = hashIndex(entry.getHs(), this.table.length);
       Entry tableValue = table[index];
       while (tableValue != null) {
          if (tableValue.getKey() != null && tableValue.getKey().equals(entry.getKey())) {
@@ -158,8 +157,8 @@ class HashTable {
       System.out.println("input: " + entry.toString() + " output: " + foundItem);
    }
 
-   public boolean isDuplicatedEntry(String key) {
-      int index = hashStringToInt(key, this.table.length);
+   public boolean isDuplicatedEntry(String key, int hs) {
+      int index = hashIndex(hs, this.table.length);
       Entry tableValue = table[index];
       while (tableValue != null) {
          if (tableValue.getKey() != null && tableValue.getKey().equals(key)) {
@@ -173,53 +172,34 @@ class HashTable {
 
    public void countHs(int hs) {
       int count = 0;
-      int i = 0;
-      Entry tableValue = table[i];
-      while (tableValue != null && i < table.length) {
-         if (tableValue.getKey() != null && tableValue.getHs() == hs) {
+      Entry tableValue = this.table[hashIndex(hs, this.table.length)];
+      while (tableValue != null) {
+         if (tableValue.getKey() != null && tableValue.getHs() == hs)
             count++;
-         }
-         if (tableValue.next != null) {
-            tableValue = tableValue.next;
-         } else {
-            i++;
-            if (i < table.length) {
-               tableValue = table[i];
-            }
-         }
+
+         tableValue = tableValue.next;
       }
       System.out.println("input: " + hs + ", output: " + count);
    }
 
    public void searchByHs(int hs) {
-      Entry[] foundItems = new Entry[0];
-      int i = 0;
-      Entry tableValue = table[i];
-      while (tableValue != null && i < table.length) {
+      ArrayList<Entry> foundItems = new ArrayList<>();
+      Entry tableValue = this.table[hashIndex(hs, this.table.length)];
+      while (tableValue != null) {
          if (tableValue.getKey() != null && tableValue.getHs() == hs) {
             Entry item = new Entry(tableValue.getKey(), tableValue.getInfo(), tableValue.getHs());
-            int sz = foundItems.length;
-            foundItems = Arrays.copyOf(foundItems, sz + 1);
-            foundItems[sz] = item;
+            foundItems.add(item);
          }
-         if (tableValue.next != null) {
-            tableValue = tableValue.next;
-         } else {
-            i++;
-            if (i < table.length) {
-               tableValue = table[i];
-            }
-         }
+         tableValue = tableValue.next;
       }
 
       System.out.print("input: " + hs + " output: ");
-      for (int j = 0; j < foundItems.length; j++) {
-         if ((j == 0 && foundItems.length == 1) || j == foundItems.length - 1) {
-            System.out.print(foundItems[j].toString() + "\n");
-         } else {
-            System.out.print(foundItems[j].toString() + ", ");
-         }
+      for (Entry item : foundItems) {
+         System.out.print(item.toString());
+         if (foundItems.indexOf(item) != foundItems.size() - 1)
+            System.out.print(", ");
       }
+      System.out.println();
    }
 }
 
@@ -261,7 +241,7 @@ public class Esercizio2 {
          int hs = Integer.parseInt(line.split(" ")[2].strip());
          if (hs >= 0 && hs < k) {
             String key = line.split(" ")[0].strip();
-            if (!d.isDuplicatedEntry(key)) {
+            if (!d.isDuplicatedEntry(key, hs)) {
                char info = line.split(" ")[1].strip().charAt(0);
                d.add(key, info, hs);
             }
